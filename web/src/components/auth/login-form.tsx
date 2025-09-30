@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -19,6 +20,7 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
+  const router = useRouter();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -31,11 +33,11 @@ export function LoginForm() {
 
     if (error) {
       toast.error(error.message);
+      setIsLoading(false);
     } else {
       toast.success('Logged in successfully');
+      router.push('/dashboard');
     }
-
-    setIsLoading(false);
   }
 
   return (

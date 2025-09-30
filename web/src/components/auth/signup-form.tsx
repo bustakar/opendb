@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -19,23 +20,30 @@ export function SignupForm() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
+  const router = useRouter();
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
       toast.error(error.message);
+      setIsLoading(false);
     } else {
-      toast.success('Account created! Please check your email to confirm.');
+      // If email confirmation is disabled, user is logged in immediately
+      if (data.session) {
+        toast.success('Account created successfully!');
+        router.push('/dashboard');
+      } else {
+        toast.success('Account created! Please check your email to confirm.');
+        router.push('/login');
+      }
     }
-
-    setIsLoading(false);
   }
 
   return (
